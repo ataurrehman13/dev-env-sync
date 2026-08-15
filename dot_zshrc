@@ -1,0 +1,255 @@
+# ============================================================
+#  ~/.zshrc — WSL2 Ubuntu 24
+#  Upgraded: mise (replaces nvm+pyenv+sdkman), fzf, ripgrep,
+#  fd, bat, alias-tips, you-should-use, fzf-tab
+#  Kept: powerlevel10k, oh-my-zsh, eza, poetry, flutter, android
+# ============================================================
+
+# ── Powerlevel10k instant prompt (must stay at top) ──────────
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ── Secrets (never commit this file) ─────────────────────────
+# Create ~/.zshrc.secrets and add sensitive exports there, e.g.:
+#   export KIMCHI_API_KEY=castai_v1_...
+[[ -f ~/.zshrc.secrets ]] && source ~/.zshrc.secrets
+
+# ── PATH ─────────────────────────────────────────────────────
+export PATH=/usr/local/bin:$PATH
+export PATH="$HOME/.local/bin:$PATH"   # single entry covers both pipx and general tools
+
+# ── Oh My Zsh ─────────────────────────────────────────────────
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+plugins=(
+  git
+  gitfast
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-completions
+  alias-tips
+  fzf-tab
+  you-should-use
+  mise
+  docker
+  docker-compose
+  colored-man-pages
+  extract
+  z
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# ── Powerlevel10k config ──────────────────────────────────────
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# ── Flutter & Android SDK ─────────────────────────────────────
+export PATH="$HOME/devtools/flutter/bin:$PATH"
+export ANDROID_HOME=$HOME/development/android
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+export PATH=$ANDROID_HOME/platform-tools:$PATH
+export PATH=$ANDROID_HOME/emulator:$PATH
+
+# ── mise (replaces nvm + pyenv + sdkman) ─────────────────────
+eval "$($HOME/.local/bin/mise activate zsh)"
+
+# ── fzf ──────────────────────────────────────────────────────
+[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] \
+    && source /usr/share/doc/fzf/examples/key-bindings.zsh
+[ -f /usr/share/doc/fzf/examples/completion.zsh ] \
+    && source /usr/share/doc/fzf/examples/completion.zsh
+
+export FZF_DEFAULT_OPTS="
+  --height 40% --layout=reverse --border rounded
+  --color=fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8
+  --color=fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8
+  --color=border:#585b70,header:#f38ba8,gutter:#1e1e2e
+  --color=spinner:#f5c2e7,info:#cba6f7,separator:#585b70
+  --color=pointer:#f5c2e7,marker:#f5c2e7,prompt:#cba6f7
+"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# ── History ───────────────────────────────────────────────────
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY          # preview before executing ! history expansion
+setopt SHARE_HISTORY
+setopt EXTENDED_HISTORY
+setopt INC_APPEND_HISTORY   # write immediately, not on shell exit
+
+# ── Modern CLI — Navigation ───────────────────────────────────
+alias l="eza --icons"
+alias ll="eza -lg --icons --git"
+alias la="eza -lag --icons --git"
+alias lt="eza -lTg --icons"
+alias lt1="eza -lTg --level=1 --icons"
+alias lt2="eza -lTg --level=2 --icons"
+alias lt3="eza -lTg --level=3 --icons"
+alias lta="eza -lTag --icons"
+alias lta1="eza -lTag --level=1 --icons"
+alias lta2="eza -lTag --level=2 --icons"
+alias lta3="eza -lTag --level=3 --icons"
+
+# bat (Ubuntu installs as batcat)
+if command -v batcat &>/dev/null; then
+    alias cat='batcat --style=auto'
+    # Don't alias less — use PAGER instead to avoid breaking git/man pipes
+    export PAGER="batcat --paging=always"
+    export MANPAGER="sh -c 'col -bx | batcat -l man -p'"
+elif command -v bat &>/dev/null; then
+    alias cat='bat --style=auto'
+    export PAGER="bat --paging=always"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# ripgrep and fd — kept under distinct names to avoid breaking system scripts
+# that rely on GNU grep/find behaviour
+alias rg='rg'    # already on PATH; explicit for alias-tips visibility
+alias ff='fd'    # fuzzy-find; use 'ff' to avoid clobbering find(1)
+
+# disk usage — safe names so du/df(1) remain available for scripts
+alias ndu='ncdu'
+alias duf='duf'
+
+alias df='df -h'   # human-readable default for the real df
+
+# navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# utilities
+alias ports='ss -tulnp'
+alias myip='curl -s --max-time 5 ifconfig.me'   # timeout for proxy/Zscaler envs
+alias path='echo $PATH | tr ":" "\n"'
+alias reload='exec zsh'        # full shell restart, not just source
+alias zshconfig='nvim ~/.zshrc'
+alias h='history | tail -50'
+alias ducks='du -sh * 2>/dev/null | sort -rh | head -10'
+
+# ── Git aliases ───────────────────────────────────────────────
+alias gs='git status -sb'
+alias ga='git add'
+alias gaa='git add -A'
+alias gc='git commit -m'
+alias gca='git commit --amend'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpl='git pull'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias glog='git log --oneline --decorate --graph --all'
+alias gdiff='git diff --color-words'
+alias gstash='git stash'
+alias gpop='git stash pop'
+alias gundo='git reset --soft HEAD~1'
+
+# NOTE: 'g' alias omitted — conflicts with the z plugin's 'g' function.
+# Use 'gs', 'gp', etc. directly, or verify with: which g
+alias g='git'
+
+# fuzzy git branch switch
+gswitch() {
+  local branch
+  branch=$(git branch --all | grep -v HEAD \
+    | sed 's/.* //' | sed 's#remotes/[^/]*/##' \
+    | sort -u | fzf +m)
+  [ -n "$branch" ] && git checkout "$branch"
+}
+
+# fuzzy git log with diff preview
+flog() {
+  git log --oneline --color=always | fzf \
+    --ansi --no-sort --reverse \
+    --preview 'git show {1} --color=always' \
+    --bind 'enter:execute(git show {1} | less -R)'
+}
+
+# ── Docker aliases ────────────────────────────────────────────
+alias d='docker'
+alias dco='docker compose'     # renamed from dc (dc is a Unix calculator utility)
+alias dps='docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"'
+alias dpsa='docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"'
+alias dimg='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"'
+alias dlogs='docker logs -f'
+alias dexec='docker exec -it'
+alias dprune='docker system prune -af --volumes'
+
+# ── Python ────────────────────────────────────────────────────
+alias py='python3'
+alias pip='pip3'
+alias ipy='ipython'
+alias venv='python3 -m venv .venv && source .venv/bin/activate'
+alias activate='source .venv/bin/activate'
+alias pfmt='ruff format . && ruff check --fix .'
+alias ptest='pytest -v'
+export POETRY_VIRTUALENVS_IN_PROJECT=true
+
+# ── Node ──────────────────────────────────────────────────────
+alias ni='pnpm install'
+alias nr='pnpm run'
+alias nrd='pnpm run dev'
+alias nrb='pnpm run build'
+alias nrt='pnpm run test'
+
+# ── Go ────────────────────────────────────────────────────────
+alias gor='go run .'
+alias gob='go build .'
+alias got='go test ./...'
+alias gomod='go mod tidy'
+
+# ── mise version shortcuts ────────────────────────────────────
+alias pyversions='mise list python'
+alias nodeversions='mise list node'
+alias javaversions='mise list java'
+alias goversions='mise list go'
+pyuse()   { mise use python@"$1"; }
+nodeuse() { mise use node@"$1"; }
+javause() { mise use java@temurin-"$1"; }
+
+# ── fzf helpers ───────────────────────────────────────────────
+fkill() {
+  local pid
+  pid=$(ps aux | grep -v grep | fzf --header="Kill which process?" | awk '{print $2}')
+  [ -n "$pid" ] && kill -9 "$pid" && echo "Killed $pid"
+}
+
+fenv() { env | fzf; }
+
+# ── WSL2 helpers ──────────────────────────────────────────────
+# Open Windows Explorer in current directory
+alias open='explorer.exe .'
+
+# Copy to Windows clipboard
+alias clip='clip.exe'
+
+# Open VS Code from WSL (requires VS Code with Remote - WSL extension)
+alias code='code'
+
+# Windows host IP
+alias winip="ip route show | grep -i default | awk '{print \$3}'"
+
+# ── Restore last directory on shell start (interactive only) ──
+if [[ $- == *i* ]]; then
+  function save_last_dir() { pwd > ~/.last_dir; }
+  trap save_last_dir EXIT
+  [[ -f ~/.last_dir ]] && cd "$(cat ~/.last_dir)"
+fi
+
+# opencode
+export PATH=/home/arehman/.opencode/bin:$PATH
+
+alias oc-t1="opencode --model openrouter/deepseek/deepseek-v4-pro"
+alias oc-t1alt="opencode --model openrouter/moonshotai/kimi-k3"
+alias oc-t1alt2="opencode --model openrouter/z-ai/glm-5.2"
+alias oc-t2="opencode --model openrouter/minimax/minimax-m3"
+alias oc-t2bulk="opencode --model openrouter/deepseek/deepseek-v4-flash"
+alias oc-t3="opencode --model ollama/qwen2.5-coder:7b"
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(starship init zsh)"

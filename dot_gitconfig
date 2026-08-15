@@ -1,0 +1,7 @@
+[user]
+	email = ataurrehman@gmail.com
+	name = Ata Ur Rehman
+[init]
+	defaultBranch = main
+[credential]
+	helper = store
