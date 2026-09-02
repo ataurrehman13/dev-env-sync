@@ -4,9 +4,9 @@ local config = wezterm.config_builder()
 
 config.font = wezterm.font 'JetBrainsMono Nerd Font Mono'
 config.color_scheme = 'Catppuccin Mocha'
-config.window_decorations = "RESIZE"
+config.enable_wayland = false
+config.window_decorations = "NONE"
 config.hide_tab_bar_if_only_one_tab = false
-
 config.enable_scroll_bar = false
 
 {{- if eq .machine "manjaro-mbp" }}
@@ -14,7 +14,7 @@ config.window_background_opacity = 1.0
 config.front_end = "WebGpu"  -- conservative: 2012 MBP's older GPU
 {{- else if eq .machine "manjaro-matebook" }}
 config.window_background_opacity = 0.95
-config.front_end = "WebGpu"
+config.front_end = "OpenGL"
 {{- end }}
 
 config.keys = {
