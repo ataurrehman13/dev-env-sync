@@ -1,0 +1,13 @@
+{{- $machine := "" }}
+{{- if (regexMatch "matebook" .chezmoi.hostname) }}
+{{-   $machine = "manjaro-matebook" }}
+{{- else if (regexMatch "manjaro|mbp" .chezmoi.hostname) }}
+{{-   $machine = "manjaro-mbp" }}
+{{- else if (regexMatch "surface" .chezmoi.hostname) }}
+{{-   $machine = "surface-book" }}
+{{- else }}
+{{-   $machine = promptString "machine label (surface-book/manjaro-mbp/manjaro-matebook)" }}
+{{- end }}
+
+[data]
+    machine = "{{ $machine }}"
