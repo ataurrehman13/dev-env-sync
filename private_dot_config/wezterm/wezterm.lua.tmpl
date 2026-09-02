@@ -22,4 +22,26 @@ config.keys = {
   { key = 'e', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
 }
 
+config.mouse_bindings = {
+  -- Select + auto copy
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "NONE",
+    action = wezterm.action.CompleteSelection("ClipboardAndPrimarySelection"),
+  },
+  -- Right click = paste (no context menu, matches Surface Book behavior)
+  {
+    event = { Up = { streak = 1, button = "Right" } },
+    mods = "NONE",
+    action = wezterm.action.PasteFrom("Clipboard"),
+  },
+  -- Ctrl + click = open links
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "CTRL",
+    action = wezterm.action.OpenLinkAtMouseCursor,
+  },
+}
+
 return config
+
