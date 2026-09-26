@@ -1,0 +1,6 @@
+#!/bin/bash
+{{- if or (eq .machine "surface-book") (eq .machine "surface-pro-7") }}
+# hash: {{ include "private_dot_config/wezterm-src/executable_wezterm.lua.tmpl" | sha256sum }}
+cp "$HOME/.config/wezterm-src/wezterm.lua" /mnt/c/Users/PC/.wezterm.lua
+echo "Synced wezterm.lua to Windows"
+{{- end }}

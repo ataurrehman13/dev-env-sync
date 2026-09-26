@@ -7,7 +7,7 @@ local config = wezterm.config_builder()
 ---------------------------------------------------------------------------
 -- WSL
 ---------------------------------------------------------------------------
-config.default_domain = "WSL:Ubuntu-24.04"
+config.default_domain = "WSL:{{ if eq .machine "surface-pro-7" }}Ubuntu{{ else }}Ubuntu-24.04{{ end }}"
 config.default_cwd = wezterm.home_dir
 
 ---------------------------------------------------------------------------
