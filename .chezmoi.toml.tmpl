@@ -3,10 +3,12 @@
 {{-   $machine = "manjaro-matebook" }}
 {{- else if (regexMatch "manjaro|mbp" .chezmoi.hostname) }}
 {{-   $machine = "manjaro-mbp" }}
+{{- else if (regexMatch "surfacepro7|surface-pro" .chezmoi.hostname) }}
+{{-   $machine = "surface-pro-7" }}
 {{- else if (regexMatch "surface" .chezmoi.hostname) }}
 {{-   $machine = "surface-book" }}
 {{- else }}
-{{-   $machine = promptString "machine label (surface-book/manjaro-mbp/manjaro-matebook)" }}
+{{-   $machine = promptString "machine label (surface-book/surface-pro-7/manjaro-mbp/manjaro-matebook)" }}
 {{- end }}
 
 [data]
